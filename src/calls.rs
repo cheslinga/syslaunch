@@ -13,20 +13,10 @@ pub fn p_reboot() {
     reboot(RebootMode::RB_AUTOBOOT);
 }
 
-pub fn exec_process(filename: &[u8]) {
-    let null = CStr::from_bytes_with_nul(&[0]).unwrap();
-
+pub fn exec_process(path: &CStr, args: &Vec<&CStr>, env: &Vec<&CStr>) {
     match unsafe {fork()} {
         Err(e) => println!("|!!| Fork failed with fatal error {}", e),
-
         Ok(ForkResult::Parent { child, .. }) => println!("Init spawned child process ({})!", child),
-
-        Ok(ForkResult::Child) => {
-            let prog = CStr::from_bytes_with_nul(filename).unwrap();
-            execve(prog,
-                   &[null],
-                   &[null]
-            );
-        }
+        Ok(ForkResult::Child) => { execve(path, &*args, &*env); }
     }
 }

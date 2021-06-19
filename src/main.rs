@@ -2,8 +2,8 @@ mod calls;
 mod sig;
 
 use crate::{calls::*, sig::*};
-use nix::unistd::getpid;
 use nix::sys::signal::*;
+use std::ffi::CStr;
 
 fn main() {
     let act_int = construct_sigact(SIGINT);
@@ -12,9 +12,12 @@ fn main() {
 
     println!("BOOTSEQ OK");
     println!("Starting init...");
-    println!("({}) Finished init", getpid().as_raw());
 
-    exec_process(b"/bin/zsh\0");
+    exec_process(
+        CStr::from_bytes_with_nul("/bin/zsh\0".as_bytes()).unwrap(),
+        &vec![CStr::from_bytes_with_nul("\0".as_bytes()).unwrap()],
+        &vec![CStr::from_bytes_with_nul("\0".as_bytes()).unwrap()]
+    );
 
     loop { unsafe {
         sigaction(SIGUSR1, &act_usr1);
