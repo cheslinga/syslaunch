@@ -14,6 +14,8 @@ fn main() {
     println!("BOOTSEQ OK");
     println!("Starting init...");
 
+    mount_dirs();
+
     exec_process(
         &String::from("/bin/zsh").to_cstring_with_null(),
         &construct_array(&vec![]),
