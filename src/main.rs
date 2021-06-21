@@ -1,9 +1,10 @@
+#![feature(cstring_from_vec_with_nul)]
 mod calls;
 mod sig;
+mod helpers;
 
-use crate::{calls::*, sig::*};
+use crate::{calls::*, sig::*, helpers::*};
 use nix::sys::signal::*;
-use std::ffi::CStr;
 
 fn main() {
     let act_int = construct_sigact(SIGINT);
@@ -14,9 +15,9 @@ fn main() {
     println!("Starting init...");
 
     exec_process(
-        CStr::from_bytes_with_nul("/bin/zsh\0".as_bytes()).unwrap(),
-        &vec![CStr::from_bytes_with_nul("\0".as_bytes()).unwrap()],
-        &vec![CStr::from_bytes_with_nul("\0".as_bytes()).unwrap()]
+        &String::from("/bin/zsh").to_cstring_with_null(),
+        &construct_array(&vec![]),
+        &construct_array(&vec![])
     );
 
     loop { unsafe {
